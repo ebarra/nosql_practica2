@@ -2,54 +2,64 @@
 const path = require('path');
 const Utils = require('./testutils');
 
-const path_assignment = path.resolve(path.join(__dirname, "../", "mod2_cmd_iterators.js"));
 // CRITICAL ERRORS
 let error_critical = null;
 
-var MongoClient = require('mongodb').MongoClient;
 const url = 'mongodb://localhost:27017';
 let client;
 let db;
 let dbname = "companies";
 let coleccion = "data";
 
+const mongoose = require('mongoose');
+
+
 //TESTS
 describe("Using Mongo SHELL", function () {
 
-    it('', async function () {
-        this.name = `1: Comprobando que la base de datos está arrancada y acepta conexiones...`;
+  before(async function() {
+    console.log("COMPROBACIONES PREVIAS")
+    console.log("Comprobando que la base de datos está arrancada y acepta conexiones...")
+
+    try {
+      client = await mongoose.connect(url, {useNewUrlParser: true, useUnifiedTopology: true, socketTimeoutMS: 300, connectTimeoutMS:300});
+      should.exist(client);
+      console.log("La base de datos está ok, hemos conseguido conectar!");
+    } catch (err) {
+        console.log("ERR", err);
+        console.log("No se ha podido conectar al servidor de MongoDB, comprueba que ejecutaste el demonio (mongod) y que el puerto está libre y la base de datos quedó a la espera de conexiones.");
+  }
+});
+
+
+    it('1: Comprobando que existe la base de datos y la colección ...', async function (done) {
         this.score = 1;
-        this.msg_ok = `La base de datos está ok, hemos conseguido conectar.`;
-        this.msg_err = `No se ha podido conectar al servidor de MongoDB, comprueba que ejecutaste el demonio (mongod) y que el puerto está libre y la base de datos quedó a la espera de conexiones.`;
+        this.msg_ok = `Todo ok, hemos conseguido conectar a la base de datos "${dbname}" y la colección "${coleccion}"  `;
+        this.msg_err = `No se ha podido conectar. Comprueba que tienes una base de datos de nombre ${dbname} y la colección ${coleccion} .`;
 
-        client = new MongoClient(url, {useNewUrlParser: true, useUnifiedTopology: true});
-
-        client.connect(function(err) {
-            should.not.exist(err);
-            console.log("Hemos conectado al servidor!");
-        });
-    });
-
-    it('', async function () {
-        this.name = `2: Comprobando que la base de datos ${dbname} existe...`;
-        this.score = 1;
-        this.msg_ok = `La base de datos existe.`;
-        this.msg_err = `No se ha podido conectar a la base de datos de nombre "${dbname}."`;
         try {
-            db = client.db("companies"); 
-            const col = db.collection('data');
-            let docs = await col.find().limit(2).toArray();
-            docs.length.should.be.equal(2);
-            console.log("HOLA");
-        } catch (err) {            
+          //client = await mongoose.connect(url+"/"+dbname, {useNewUrlParser: true, useUnifiedTopology: true, socketTimeoutMS: 300, connectTimeoutMS:300});
+          //should.exist(client);
+          mongoose.connection.db.listCollections({name: coleccion}).next(function(err, collinfo) {
+              if(err){
+                console.log(err);
+                should.not.exist(err);
+              } else {
+                console.log("Hemos conectado a la bbdd y la colección existe!");
+                should.exist(collinfo);
+              }
+              done();
+          });
+        } catch (err) {
             console.log("ERR", err);
             should.not.exist(err);
         }
     });
 
+
     after(function() {
         // runs after all tests in this block
-        client.close();
+        mongoose.connection.close();
     });
 
 });
