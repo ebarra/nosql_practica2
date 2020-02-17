@@ -1,0 +1,29 @@
+{
+    "name": "nosql_practica2",
+    "version": "0.0.0",
+    "description": "autoCOREctor de la asignatura de BBDD (UPM)",
+    "main": "dist/index.js",
+    "bin": {
+        "autocorector": "./dist/index.js"
+    },
+    "keywords": [
+        "CORE",
+        "self-assessment"
+    ],
+    "author": "ging",
+    "license": "GNU",
+    "info": {
+        "githubURL": "ebarra/nosql_practica2",
+        "serverUrl": "https://autocorector.dit.upm.es/",
+        "courseId": "7775",
+        "assignmentId": "76893"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ging/autoCOREctor",
+        "directory": "client"
+    },
+    "dependencies": {
+        "mongodb": "^3.5.2"
+    }
+}
