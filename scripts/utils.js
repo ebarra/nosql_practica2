@@ -33,6 +33,7 @@ const mkdir = promisify(fs.mkdir);
 const stat = promisify(fs.stat);
 
 
+
 Utils.setDebug = (status) => {
   withDebug = status;
 }
@@ -137,23 +138,6 @@ Utils.getEmailAndToken = async (user_file_path) => {
 };
 
 
-Utils.getHashFile = (file_path) => {
-  Utils.debug("getHashFile", file_path);
-  let fd = fs.createReadStream(path.resolve(process.cwd(), file_path));
-  let hash = crypto.createHash('md5');
-  hash.setEncoding('hex');
-
-  return new Promise(function(resolve, reject) {
-    fd.on('end', function() {
-      hash.end();
-      resolve(hash.read(), reject); // the desired md5
-    });
-    // read all file and pipe it (write it) to the hash object
-    fd.pipe(hash);
-  });
-}
-
-
 Utils.getHashMultipleFiles = async (file_paths_array) => {
   Utils.debug("getHashMultipleFiles",file_paths_array);
   //first we get the files as a string
@@ -166,6 +150,19 @@ Utils.getHashMultipleFiles = async (file_paths_array) => {
   let md5hash = crypto.createHash('md5').update(files_content).digest("hex");
   return md5hash;
 }
+
+Utils.getHashMultipleStrings = (string_array) => {
+    let files_content = "";
+
+    for (let i = 0; i < string_array.length; i++) {
+        files_content += string_array[i];
+    }
+
+    const md5hash = crypto.createHash("md5").update(files_content).
+        digest("hex");
+
+    return md5hash;
+};
 
 
 Utils.getSignature = (user_info) => {
@@ -182,8 +179,8 @@ Utils.getSignature = (user_info) => {
 }
 
 
-Utils.askForConsent = (user_info)=>{
-  Utils.debug("askForConsent", user_info);
+Utils.askForDataCorrect = (user_info)=>{
+  Utils.debug("askForDataCorrect", user_info);
   var rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
@@ -194,20 +191,32 @@ Utils.askForConsent = (user_info)=>{
     rl.question(ask('¿Son correctos? (y/N): '), function(answer) {
       if(answer!=="y" && answer !=="yes"){
         resolve(false, reject);
-        return;
       } else {
-        console.log(info(`El contenido de la práctica, así como los test que se le pasan van a ser firmados.`));
-        console.log(info(`Es importante que sepa que se van a enviar al servidor y en él se validará la firma y la autenticidad, así como se pasará un anticopia.`));
-        rl.question(ask('¿Confirma que ha realizado usted mismo la práctica y desea enviarla al servidor para registrar la nota? (y/N):'), (answer2) => {
-          if(answer2!=="y" && answer2 !=="yes"){
-            resolve(false, reject);
-          } else {
-            resolve(true, reject);
-          }
-          rl.close();
-        });
-      }//end of else case
+        resolve(true, reject);
+      }
+      rl.close();
+      return;
     });
+  });
+}
+
+Utils.askForConsent = (user_info)=>{
+  Utils.debug("askForConsent", user_info);
+  var rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+  return new Promise(function(resolve, reject) {
+      console.log(info(`El contenido de la práctica, así como los test que se le pasan van a ser firmados.`));
+      console.log(info(`Es importante que sepa que se van a enviar al servidor y en él se validará la firma y la autenticidad, así como se pasará un anticopia.`));
+      rl.question(ask('¿Confirma que ha realizado usted mismo la práctica y desea enviarla al servidor para registrar la nota? (y/N):'), (answer2) => {
+        if(answer2!=="y" && answer2 !=="yes"){
+          resolve(false, reject);
+        } else {
+          resolve(true, reject);
+        }
+        rl.close();
+      });
   });
 }
 
@@ -235,6 +244,7 @@ Utils.compress = async (outputFilename) => {
 Utils.checkTestVersion = async (fullrepo, jsonPath) => {
   Utils.debug("checkTestVersion",fullrepo, jsonPath);
   const octokit = new Octokit();
+  let owner, repo;
   [owner, repo] = fullrepo.split("/");
   return octokit.repos.getContents({
     owner: owner,
@@ -250,6 +260,29 @@ Utils.checkTestVersion = async (fullrepo, jsonPath) => {
       return "*";
     })
 }
+
+Utils.getGitHubFile = (fullrepo, filePath) => new Promise((resolve, reject) => {
+    const octokit = new Octokit();
+    let owner, repo;
+    [owner, repo] = fullrepo.split("/");
+
+    if(filePath.startsWith("./")){
+      filePath = filePath.substring(2); //remove the "./"
+    }
+
+    octokit.repos.getContents({
+        owner,
+        repo,
+        "path": filePath
+    }).then((result) => {
+        // content will be base64 encoded
+        const content = Buffer.from(result.data.content, "base64").toString();
+        resolve(content);
+    }).
+        catch((err) => {
+            reject(err);
+        });
+});
 
 
 Utils.encryptBufferWithRsaPublicKey = async (toEncrypt, pathToPublicKey) => {
@@ -307,7 +340,7 @@ Utils.sendFile = async (url, file, history_file) => {
       }
   };
   try {
-  
+
     const response = await needle("post",
       url,
       data,
@@ -324,7 +357,7 @@ Utils.sendFile = async (url, file, history_file) => {
   } catch(err) {
       console.error(err || "Error");
   }
- 
+
 };
 
 

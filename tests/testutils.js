@@ -1,5 +1,11 @@
-const fs = require('fs').promises;
+//We won´t use fs promises because in windows 10 and Ubuntu writefile breaks promises in node 12
+//we will use the standard callback version and promisify it
+//const fs = require('fs').promises;
+const fs = require('fs');
 const path = require("path");
+
+const { promisify } = require("util");
+const access = promisify(fs.access);
 
 const REG_URL = /(\b(http|ftp|https|ftps):\/\/[-A-ZáéíóúÁÉÍÓÚ0-9+&@#\/%?=~_|!:,.;]*[-A-ZáéíóúÁÉÍÓÚ0-9+&@#\/%=~_|])/ig;
 
@@ -9,7 +15,7 @@ const TestUtils = {};
 TestUtils.checkFileExists = (filepath) => {
   return new Promise(async (resolve, reject) => {
     try {
-      await fs.access(filepath, fs.F_OK);
+      await access(filepath, fs.F_OK);
       resolve(true);
     } catch (err) {
       resolve(false);

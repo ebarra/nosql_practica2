@@ -1,7 +1,5 @@
 // IMPORTS
 const path = require('path');
-const Utils = require('./testutils');
-
 const User = require('../user.json');
 
 // CRITICAL ERRORS
@@ -15,9 +13,6 @@ const mongoose = require('mongoose');
 let Admin = mongoose.mongo.Admin;
 const Company = require('./model');
 
-mongoose.Promise = global.Promise;
-
-//TESTS
 describe("Using Mongo SHELL", function () {
 
     before(async function() {
@@ -25,19 +20,19 @@ describe("Using Mongo SHELL", function () {
         console.log("Comprobando que la base de datos está arrancada y acepta conexiones...")
 
         try {
-            //client = await mongoose.connect(URL, {useNewUrlParser: true, useUnifiedTopology: true});
-            connection = await mongoose.createConnection(URL, {useNewUrlParser: true, useUnifiedTopology: true, socketTimeoutMS: 3000, connectTimeoutMS:3000, serverSelectionTimeoutMS: 2000});
-            should.exist(connection);
-            connection.on('open', function() {
+            await mongoose.connect(URL, {useNewUrlParser: true, useUnifiedTopology: true, socketTimeoutMS: 3000, connectTimeoutMS:3000, serverSelectionTimeoutMS: 2000});
+            //connection = await mongoose.createConnection(URL, {useNewUrlParser: true, useUnifiedTopology: true, socketTimeoutMS: 3000, connectTimeoutMS:3000, serverSelectionTimeoutMS: 2000});
+            //should.exist(connection);
+            mongoose.connection.on('open', function() {
                 // connection established
-                new Admin(connection.db).listDatabases(function(err, result) {
+                new Admin(mongoose.connection.db).listDatabases(function(err, result) {
                     console.log('listDatabases succeeded');
                     // database list stored in result.databases
                     var allDatabases = result.databases.map((dat)=>dat.name);
                     allDatabases.includes(dbname).should.be.equal(true);
                 });
             });
-            connection.on('error', (error) => {
+            mongoose.connection.on('error', (error) => {
                 console.warn('ERROR : ',error);
             });
             console.log("La base de datos está ok, hemos conseguido conectar!");
@@ -55,7 +50,7 @@ describe("Using Mongo SHELL", function () {
         this.msg_err = `No se ha podido conectar a la colección pedida. Comprueba que tienes una base de datos de nombre ${dbname} y la colección ${coleccion} .`;
           return new Promise(function(resolve, reject) {
             try {
-               connection.db.listCollections().toArray(function (err, names) {
+               mongoose.connection.db.listCollections().toArray(function (err, names) {
                   if(err) throw err;
                   let colnames = names.map((dat)=>dat.name);
                   colnames.includes(coleccion).should.be.equal(true);
@@ -67,35 +62,30 @@ describe("Using Mongo SHELL", function () {
               reject(err);
             }
           });
-
-
-
-
     });
 
 
-    // it('1. Actualizar. Comprobando funcionalidad ...', function(done) {
-    //     this.score = 1;
-    //     this.msg_ok = `La compañía "VistaGen Therapeutics" tiene el email del alumno`;
-    //     this.msg_err = `La compañía "VistaGen Therapeutics" NO tiene el email del alumno.`;
-    //     console.log("ENTRAAAA")
-        
-
-    //    let com = Company.findOne({}).exec().then(function (doc) {
-    //      console.log("COM: ", doc)
-    //      true.should.be.equal(true)
-    //      done();
-    //    });
-
-
-    // });
-
-
+    it('1. Actualizar. Comprobando funcionalidad ...', async function() {
+        this.score = 1;
+        this.msg_ok = `La compañía "VistaGen Therapeutics" tiene el email del alumno`;
+        this.msg_err = `La compañía "VistaGen Therapeutics" NO tiene el email del alumno.`;
+        try {
+          let com = await Company.findOne({name: "VistaGen Therapeutics"});
+          throw "ERROR MIO";
+          //console.log("COM: ", com.email_address);
+          //console.log("USER:", User.email);
+        } catch(e){
+          console.log("ERROR:", e);
+          should.not.exist(e);
+        }
+        console.log("SAAAAAAAAAAAAAAAAALlllllllllll")
+        User.email.should.be.equal(com.email_address);
+    });
 
 
     after(function() {
         console.log("Cerramos la conexión con la BBDD");
-        connection.close();
+        mongoose.connection.close();
     });
 
 });

@@ -13,10 +13,9 @@ mongoose.connection.on('open', function() {
         var allDatabases = result.databases;
         console.log(allDatabases);
     });
+});
 
-    let com = Company.findOne({}).exec().then(function(doc) {
-        console.log(doc);
-    });
-
-
+let com = Company.findOne({}).exec().then(function(doc) {
+  console.log("ENTRA1")
+    console.log(doc);
 });
