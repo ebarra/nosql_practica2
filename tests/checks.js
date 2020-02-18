@@ -2,15 +2,20 @@
 const path = require('path');
 const Utils = require('./testutils');
 
+const User = require('../user.json');
+
 // CRITICAL ERRORS
 let error_critical = null;
-let dbname = "companies";
-let coleccion = "data";
+let dbname = "data";
+let coleccion = "companies";
 const URL = 'mongodb://localhost:27017/' + dbname;
 let connection;
 
 const mongoose = require('mongoose');
 let Admin = mongoose.mongo.Admin;
+const Company = require('./model');
+
+mongoose.Promise = global.Promise;
 
 //TESTS
 describe("Using Mongo SHELL", function () {
@@ -21,7 +26,7 @@ describe("Using Mongo SHELL", function () {
 
         try {
             //client = await mongoose.connect(URL, {useNewUrlParser: true, useUnifiedTopology: true});
-            connection = await mongoose.createConnection('mongodb://localhost:27017/companies', {useNewUrlParser: true, useUnifiedTopology: true, socketTimeoutMS: 3000, connectTimeoutMS:3000, serverSelectionTimeoutMS: 2000});
+            connection = await mongoose.createConnection(URL, {useNewUrlParser: true, useUnifiedTopology: true, socketTimeoutMS: 3000, connectTimeoutMS:3000, serverSelectionTimeoutMS: 2000});
             should.exist(connection);
             connection.on('open', function() {
                 // connection established
@@ -32,6 +37,9 @@ describe("Using Mongo SHELL", function () {
                     allDatabases.includes(dbname).should.be.equal(true);
                 });
             });
+            connection.on('error', (error) => {
+                console.warn('ERROR : ',error);
+            });
             console.log("La base de datos está ok, hemos conseguido conectar!");
             console.log("\n\n");
         } catch (err) {
@@ -41,8 +49,8 @@ describe("Using Mongo SHELL", function () {
     });
 
 
-    it('1: Comprobando que existe la base de datos y la colección ...', async function() {
-        this.score = 1;
+    it('0: Comprobando que existe la base de datos y la colección ...', async function() {
+        this.score = 0.5;
         this.msg_ok = `Todo ok, hemos conseguido conectar a la base de datos "${dbname}" y la colección "${coleccion}"  `;
         this.msg_err = `No se ha podido conectar a la colección pedida. Comprueba que tienes una base de datos de nombre ${dbname} y la colección ${coleccion} .`;
           return new Promise(function(resolve, reject) {
@@ -50,7 +58,7 @@ describe("Using Mongo SHELL", function () {
                connection.db.listCollections().toArray(function (err, names) {
                   if(err) throw err;
                   let colnames = names.map((dat)=>dat.name);
-                  colnames.includes("coleccion").should.be.equal(true);
+                  colnames.includes(coleccion).should.be.equal(true);
                   resolve();
               });
             } catch (err) {
@@ -59,7 +67,30 @@ describe("Using Mongo SHELL", function () {
               reject(err);
             }
           });
+
+
+
+
     });
+
+
+    // it('1. Actualizar. Comprobando funcionalidad ...', function(done) {
+    //     this.score = 1;
+    //     this.msg_ok = `La compañía "VistaGen Therapeutics" tiene el email del alumno`;
+    //     this.msg_err = `La compañía "VistaGen Therapeutics" NO tiene el email del alumno.`;
+    //     console.log("ENTRAAAA")
+        
+
+    //    let com = Company.findOne({}).exec().then(function (doc) {
+    //      console.log("COM: ", doc)
+    //      true.should.be.equal(true)
+    //      done();
+    //    });
+
+
+    // });
+
+
 
 
     after(function() {
