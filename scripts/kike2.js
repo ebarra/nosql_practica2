@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var Admin = mongoose.mongo.Admin;
-const Company = require('../tests/model');
+const Company = require('../tests/company');
 
 /// create a connection to the DB
 var client = mongoose.connect('mongodb://localhost:27017/data', {useNewUrlParser: true, useUnifiedTopology: true, socketTimeoutMS: 300, connectTimeoutMS:300});
