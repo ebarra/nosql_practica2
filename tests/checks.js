@@ -21,6 +21,8 @@ const debug = (...args) => {
     }
 }
 
+let dbexists = false;
+
 describe("Using Mongo SHELL", function () {
 
     before(async function() {
@@ -51,7 +53,8 @@ describe("Using Mongo SHELL", function () {
                 new Admin(mongoose.connection.db).listDatabases(function(err, result) {
                     var allDatabases = result.databases.map((dat)=>dat.name);
                     debug('listDatabases succeeded', allDatabases);
-                    allDatabases.includes(dbname).should.be.equal(true);
+                    dbexists = allDatabases.includes(dbname);
+                    dbexists.should.be.equal(true);
                     mongoose.connection.db.listCollections().toArray(function (err, names) {
                         if(err) throw err;
                         let colnames = names.map((dat)=>dat.name);
@@ -135,6 +138,7 @@ describe("Using Mongo SHELL", function () {
       this.msg_ok = `La compañía fundada el 21 de abril de 2009 está borrada correctamente`;
       this.msg_err = `La compañía fundada el 21 de abril de 2009 aún existe`;
       try {
+        dbexists.should.be.equal(true);
         let com = await Company.findOne({name: "Hellofam"});
         debug("COM: ", com);
         should.not.exist(com);
