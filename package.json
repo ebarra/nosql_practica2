@@ -22,8 +22,5 @@
         "type": "git",
         "url": "https://github.com/ging/autoCOREctor",
         "directory": "client"
-    },
-    "dependencies": {
-        "mongoose": "^5.9.1"
     }
 }
