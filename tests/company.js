@@ -21,7 +21,7 @@ const CompanySchema = Schema({
   	tag_list : String,
   	alias_list : String,
   	email_address : String,
-  	phone_number : String,
+  	phone_number : Schema.Types.Mixed,
   	description : String,
   	created_at : Date,
   	updated_at : Date,
@@ -67,6 +67,7 @@ const CompanySchema = Schema({
   	screenshots : Array,
   	external_links : Array,
   	partners : Array,
+    owners: Array
   });
 
 module.exports = mongoose.model('Company', CompanySchema);

@@ -3,6 +3,7 @@
     "version": "0.0.0",
     "description": "autoCOREctor de la asignatura de BBDD (UPM)",
     "main": "dist/index.js",
+    "debug": false,
     "bin": {
         "autocorector": "./dist/index.js"
     },

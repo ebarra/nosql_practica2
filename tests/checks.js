@@ -45,7 +45,7 @@ describe("Using Mongo SHELL", function () {
 
 
     it('0: Comprobando que existe la base de datos y la colección ...', async function() {
-        this.score = 1;
+        this.score = 0.5;
         this.msg_ok = `Todo ok, hemos conseguido conectar a la base de datos "${dbname}" y la colección "${coleccion}"  `;
         this.msg_err = `No se ha podido conectar a la colección pedida. Comprueba que tienes una base de datos de nombre ${dbname} y la colección ${coleccion} .`;
           return new Promise(function(resolve, reject) {
@@ -73,7 +73,7 @@ describe("Using Mongo SHELL", function () {
 
 
     it('1. Actualizar. Comprobando funcionalidad ...', async function() {
-        this.score = 1;
+        this.score = 0.5;
         this.msg_ok = `La compañía "VistaGen Therapeutics" tiene el email del alumno`;
         this.msg_err = `La compañía "VistaGen Therapeutics" NO tiene el email del alumno.`;
         try {
@@ -88,14 +88,14 @@ describe("Using Mongo SHELL", function () {
     });
 
 
-    it('2. Actualizar. Comprobando funcionalidad ...', async function() {
+    it('2. Actualizar creando un campo array. Comprobando funcionalidad ...', async function() {
         this.score = 1;
-        this.msg_ok = `La compañía "VistaGen Therapeutics" tiene el array de partners ok`;
-        this.msg_err = `La compañía "VistaGen Therapeutics" NO tiene el array de partners ok.`;
+        this.msg_ok = `La compañía "VistaGen Therapeutics" tiene el array owners ok`;
+        this.msg_err = `La compañía "VistaGen Therapeutics" NO tiene el array owners correcto.`;
         try {
           let com = await Company.findOne({name: "VistaGen Therapeutics"});
-          debug("COM: ", com.partners);
-          let myarray = com.partners;
+          debug("COM: ", com.owners);
+          let myarray = com.owners;
           myarray.length.should.be.equal(1);
           myarray[0].token.should.be.equal(User.token);
         } catch(e){
@@ -106,7 +106,7 @@ describe("Using Mongo SHELL", function () {
 
 
     it('3. Actualizar multiple. Comprobando funcionalidad ...', async function() {
-        this.score = 1;
+        this.score = 0.5;
         this.msg_ok = `Las compañías fundadas después de 2012 tienen el campo adicional solicitado`;
         this.msg_err = `Las compañías fundadas después de 2012 NO tienen el campo adicional solicitado`;
         try {
@@ -153,7 +153,7 @@ describe("Using Mongo SHELL", function () {
       this.msg_ok = `El documento insertado "Result" existe y tiene el _id correcto`;
       this.msg_err = `El documento insertado "Result" NO existe o no tiene el _id correcto`;
       try {
-        let doc = await Result.findOne({_id: User.token});
+        let doc = await Result.findOne({_id: 1});
         debug("DOC: ", doc);
         should.exist(doc);
       } catch(e){
@@ -167,7 +167,7 @@ describe("Using Mongo SHELL", function () {
       this.msg_ok = `El documento insertado "Result" existe y tiene el email de alumno correcto`;
       this.msg_err = `El documento insertado "Result" no tiene el _id correcto o no tiene el email de alumno correcto`;
       try {
-        let doc = await Result.findOne({_id: User.token});
+        let doc = await Result.findOne({_id: 1});
         debug("DOC: ", doc);
         doc.email.should.be.equal(User.email);
       } catch(e){
@@ -177,13 +177,13 @@ describe("Using Mongo SHELL", function () {
     });
 
     it('6.c) Insertar documento. Comprobando funcionalidad ...', async function() {
-      this.score = 1;
-      this.msg_ok = `El documento insertado "Result" tiene el resultado correcto para compañías con más de 400 empleados`;
-      this.msg_err = `El documento insertado "Result" NO tiene el resultado correcto para compañías con más de 400 empleados`;
+      this.score = 0.5;
+      this.msg_ok = `El documento insertado "Result" tiene el resultado correcto para compañías con más de 100 empleados`;
+      this.msg_err = `El documento insertado "Result" NO tiene el resultado correcto para compañías con más de 100 empleados`;
       try {
-        let doc = await Result.findOne({_id: User.token});
+        let doc = await Result.findOne({_id: 1});
         debug("DOC: ", doc);
-        doc.results.mas_empleados.should.be.equal(3);
+        doc.results.mas_empleados.should.be.equal(16);
       } catch(e){
         debug("ERROR:", e);
         should.not.exist(e);
@@ -191,13 +191,13 @@ describe("Using Mongo SHELL", function () {
     });
 
     it('6.d) Insertar documento. Comprobando funcionalidad ...', async function() {
-      this.score = 1;
-      this.msg_ok = `El documento insertado "Result" tiene el resultado correcto para compañías con 3 oficinas`;
-      this.msg_err = `El documento insertado "Result" NO tiene el resultado correcto para compañías con 3 oficinas`;
+      this.score = 0.5;
+      this.msg_ok = `El documento insertado "Result" tiene el resultado correcto para compañías con 2 oficinas`;
+      this.msg_err = `El documento insertado "Result" NO tiene el resultado correcto para compañías con 2 oficinas`;
       try {
-        let doc = await Result.findOne({_id: User.token});
+        let doc = await Result.findOne({_id: 1});
         debug("DOC: ", doc);
-        doc.results.tres_oficinas.should.be.equal(10);
+        doc.results.dos_oficinas.should.be.equal(33);
       } catch(e){
         debug("ERROR:", e);
         should.not.exist(e);
@@ -205,13 +205,90 @@ describe("Using Mongo SHELL", function () {
     });
 
     it('6.e) Insertar documento. Comprobando funcionalidad ...', async function() {
-      this.score = 1;
-      this.msg_ok = `El documento insertado "Result" tiene el resultado correcto para milestones en el año 2011`;
-      this.msg_err = `El documento insertado "Result" NO tiene el resultado correcto para milestones en el año 2011`;
+      this.score = 0.5;
+      this.msg_ok = `El documento insertado "Result" tiene el resultado correcto para milestones en el año 2012`;
+      this.msg_err = `El documento insertado "Result" NO tiene el resultado correcto para milestones en el año 2012`;
       try {
-        let doc = await Result.findOne({_id: User.token});
+        let doc = await Result.findOne({_id: 1});
         debug("DOC: ", doc);
-        doc.results.milestone_2011.should.be.equal(17);
+        doc.results.m_2012.should.be.equal(10);
+      } catch(e){
+        debug("ERROR:", e);
+        should.not.exist(e);
+      }
+    });
+
+    it('6.f) Insertar documento. Comprobando funcionalidad ...', async function() {
+      this.score = 0.5;
+      this.msg_ok = `El documento insertado "Result" tiene el resultado correcto para compañías recientes, opening_date posterior a 2020`;
+      this.msg_err = `El documento insertado "Result" NO tiene el resultado correcto para compañías recientes, opening_date posterior a 2020`;
+      try {
+        let doc = await Result.findOne({_id: 1});
+        debug("DOC: ", doc);
+        doc.results.recientes.should.be.equal(89);
+      } catch(e){
+        debug("ERROR:", e);
+        should.not.exist(e);
+      }
+    });
+
+    it('7. Meter en array. Comprobando funcionalidad ...', async function() {
+      this.score = 1;
+      this.msg_ok = `La compañía de nombre "FoodCare" tiene el array products con el nuevo producto añadido.`;
+      this.msg_err = `La compañía de nombre "FoodCare" NO tiene añadido el nuevo producto en el array products.`;
+      try {
+        dbexists.should.be.equal(true);
+        let com = await Company.findOne({name: "FoodCare"});
+        debug("COM: ", com);
+        com.products.length.should.be.equal(6);
+        com.products[5].name.should.be.equal("Future Edition");
+        com.products[5].permalink.should.be.equal("future-edition");
+      } catch(e){
+        debug("ERROR:", e);
+        should.not.exist(e);
+      }
+    });
+
+    it('8. Actualizar array. Comprobando funcionalidad ...', async function() {
+      this.score = 0.5;
+      this.msg_ok = `La compañía de nombre "FoodCare" tiene el array products con su segunda posición correcto.`;
+      this.msg_err = `La compañía de nombre "FoodCare" tiene el array products con la segunda posición INCORRECTA.`;
+      try {
+        dbexists.should.be.equal(true);
+        let com = await Company.findOne({name: "FoodCare"});
+        debug("COM: ", com);
+        com.products.length.should.be.equal(6);
+        com.products[1].name.should.be.equal("Company Edition");
+      } catch(e){
+        debug("ERROR:", e);
+        should.not.exist(e);
+      }
+    });
+
+    it('9. Sacar de array. Comprobando funcionalidad ...', async function() {
+      this.score = 0.5;
+      this.msg_ok = `La compañía de nombre "CircleUp" no tiene en el campo relationship con "is_past" a true.`;
+      this.msg_err = `La compañía de nombre "CircleUp" AUN tiene en el campo relationship con "is_past" a true.`;
+      try {
+        dbexists.should.be.equal(true);
+        let com = await Company.findOne({name: "CircleUp"});
+        debug("COM: ", com);
+        com.relationships.length.should.be.equal(6);
+      } catch(e){
+        debug("ERROR:", e);
+        should.not.exist(e);
+      }
+    });
+
+    it('10. Cambiar el tipo de datos en un campo. Comprobando funcionalidad ...', async function() {
+      this.score = 0.5;
+      this.msg_ok = `La compañía de nombre "Gimigo" tiene el phone_number solicitado.`;
+      this.msg_err = `La compañía de nombre "Gimigo" NO tiene el phone_number solicitado.`;
+      try {
+        dbexists.should.be.equal(true);
+        let com = await Company.findOne({name: "Gimigo"});
+        debug("COM: ", com);
+        com.phone_number.should.be.equal(2065382800);
       } catch(e){
         debug("ERROR:", e);
         should.not.exist(e);
